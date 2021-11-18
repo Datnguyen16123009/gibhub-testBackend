@@ -5,7 +5,7 @@ exports.login = function(req,res){
     }); 
 }
 exports.join = function(req,res){
-    DangNhap.join(req.body,function(respone){
+    DangNhap.join(req,function(respone){
        res.send({result:respone});
     }); 
 }

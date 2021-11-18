@@ -2,6 +2,7 @@ const Mongoose = require("mongoose");
 const _CONF = require('../common/config');
 var jwt = require('jsonwebtoken');
 const { options } = require("../router/home.router");
+const { formidable, Formidable } = require("formidable");
 const PersonModel = Mongoose.model("person", {
     Password: String,
     Name:String,
@@ -29,15 +30,36 @@ PersonModel.login = function(name,pass,result){
         }
     });
 };
-PersonModel.join = function(body,result){
-    try {
-        var person = new PersonModel(body);
-        const User = person.save();
-        result(person);
-    } catch (error) {
-        result(error);
-    }
-    
+PersonModel.join = function(req,result){
+    const form = new formidable.IncomingForm()
+    const detect = require("detect-file-type")
+    const {v1:uuidv1} = require("uuid")
+    const fs = require("fs")
+    const path = require("path")
+    form.parse(req,(err,fields,files)=>{
+        if(err){return("ERR in file")}
+        detect.fromFile(files.Emoij.filepath,(err,hi)=>{
+            const picturename = uuidv1()+"."+hi.ext
+            const allowimage = ["png","jeg","jpg"]
+            if(!allowimage.includes(hi.ext)){
+                result("Image not allowed") 
+            }
+            const oldPath = files.Emoij.filepath
+            const newPath = path.join(__dirname,"..","..","Test","picture", picturename)
+            fs.rename(oldPath,newPath,err=>{
+                if(err) result(err)
+                try {
+                    const user={"Name":fields.Name,"Password":fields.Password,"Email":fields.Email,"Emoij":picturename}
+                    var person = new PersonModel(user);
+                    const User = person.save();
+                    result(person);
+                } catch (error) {
+                    result(error);
+                }
+                
+            })
+        })
+    })
 };
 PersonModel.list =  function(result){
     PersonModel.find({},function(err,data){
