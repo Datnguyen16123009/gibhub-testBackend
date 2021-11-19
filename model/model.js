@@ -1,8 +1,9 @@
 const Mongoose = require("mongoose");
 const _CONF = require('../common/config');
 var jwt = require('jsonwebtoken');
-const { options } = require("../router/home.router");
+const { options, patch } = require("../router/home.router");
 const { formidable, Formidable } = require("formidable");
+const { decode } = require("punycode");
 const PersonModel = Mongoose.model("person", {
     Password: String,
     Name:String,
@@ -56,7 +57,6 @@ PersonModel.join = function(req,result){
                 } catch (error) {
                     result(error);
                 }
-                
             })
         })
     })
@@ -65,6 +65,26 @@ PersonModel.list =  function(result){
     PersonModel.find({},function(err,data){
         if(err) result(err)
         result(data)
+    })
+}
+PersonModel.test =  function(req,result){
+    const form = new formidable.IncomingForm()
+    const detect = require("detect-file-type")
+    const { base64encode, base64decode } = require('nodejs-base64');
+    form.parse(req,(err,fields,files)=>{
+        data=fields.image
+        he = fields._id
+        encoded = base64encode(data);
+        decoded = base64decode(encoded)
+        PersonModel.updateOne({_id:he}, { $set: {Emoij:encoded}}, function(err, hi){
+            if(err) result(err)
+            PersonModel.find({_id:he},function(err,data){
+                if(err) result(err)
+                if(data){result("User Not Found")}
+                else{result(data)}
+            })
+        });
+    
     })
 }
 PersonModel.detail =  function(id,result){

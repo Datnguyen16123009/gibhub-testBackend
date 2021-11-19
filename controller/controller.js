@@ -9,6 +9,16 @@ exports.join = function(req,res){
        res.send({result:respone});
     }); 
 }
+exports.home = function(req,res){
+    const path = require('path');
+    var pathfile = path.join(__dirname,'../home.html')
+    res.sendFile(pathfile)
+}
+exports.test = function(req,res){
+    DangNhap.test(req,function(respone){
+        res.send({result:respone});
+     }); 
+}
 exports.list = function(req,res){
     DangNhap.list(function(respone){
        res.send({result:respone});
