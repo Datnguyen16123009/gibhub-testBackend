@@ -70,21 +70,50 @@ PersonModel.list =  function(result){
 PersonModel.test =  function(req,result){
     const form = new formidable.IncomingForm()
     const detect = require("detect-file-type")
-    const { base64encode, base64decode } = require('nodejs-base64');
+    const {v1:uuidv1} = require("uuid")
+    const fs = require("fs")
+    const path = require("path")
     form.parse(req,(err,fields,files)=>{
-        data=fields.image
-        he = fields._id
-        encoded = base64encode(data);
-        decoded = base64decode(encoded)
-        PersonModel.updateOne({_id:he}, { $set: {Emoij:encoded}}, function(err, hi){
-            if(err) result(err)
-            PersonModel.find({_id:he},function(err,data){
+        if(err){return("ERR in file")}
+        detect.fromFile(files.Emoij.filepath,(err,hi)=>{
+            const picturename = uuidv1()+"."+hi.ext
+            const allowimage = ["png","jeg","jpg"]
+            if(!allowimage.includes(hi.ext)){
+                result("Image not allowed") 
+            }
+            const oldPath = files.Emoij.filepath
+            const newPath = path.join(__dirname,"..","..","Test","picture", picturename)
+            var fileMetadata = {
+                'name': 'photo.jpg'
+              };
+            var media = {
+                mimeType: 'image/jpg]',
+                body: fs.createReadStream('../picture/'+picturename)
+            };
+            drive.files.create({
+            resource: fileMetadata,
+            media: media,
+            fields: 'id'
+            }, function (err, file) {
+                if (err) {
+                  // Handle error
+                  console.error(err);
+                } else {
+                  console.log('File Id: ', file.id);
+                }
+            });
+            /*fs.rename(oldPath,newPath,err=>{
                 if(err) result(err)
-                if(data){result("User Not Found")}
-                else{result(data)}
-            })
-        });
-    
+                try {
+                    const user={"Name":fields.Name,"Password":fields.Password,"Email":fields.Email,"Emoij":picturename}
+                    var person = new PersonModel(user);
+                    const User = person.save();
+                    result(person);
+                } catch (error) {
+                    result(error);
+                }
+            })*/
+        })
     })
 }
 PersonModel.detail =  function(id,result){
