@@ -17,6 +17,6 @@ Mongoose.connect("mongodb+srv://nguyentandat:datnguyen1612@cluster0.ftwyq.mongod
 app.use('/public',express.static(path.join(__dirname,'/public')))
 app.use("/",homeRouter);
 
-app.listen(3000,function(){
+app.listen(process.env.PORT,function(){
     console.log("Server is running in port 3000.....")
 })
