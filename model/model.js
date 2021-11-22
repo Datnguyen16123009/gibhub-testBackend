@@ -1,9 +1,7 @@
 const Mongoose = require("mongoose");
 const _CONF = require('../common/config');
 var jwt = require('jsonwebtoken');
-const { options, patch } = require("../router/home.router");
-const { formidable, Formidable } = require("formidable");
-const { decode } = require("punycode");
+const { formidable } = require("formidable");
 const PersonModel = Mongoose.model("person", {
     Password: String,
     Name:String,
@@ -61,11 +59,25 @@ PersonModel.join = function(req,result){
         })
     })
 };
-PersonModel.list =  function(result){
-    PersonModel.find({},function(err,data){
-        if(err) result(err)
-        result(data)
-    })
+
+PersonModel.list =  function(req,result){
+    const PAGE_SIZE = 5
+    var trang = req.query.page
+    if(trang){
+        trang = parseInt(trang)
+        if(trang<1)trang=1;
+        var soluongskip = (trang-1)*PAGE_SIZE
+        PersonModel.find({},function(err,data){
+            if(err) result(err)
+            result(data)
+        }).skip(soluongskip).limit(PAGE_SIZE)
+    }else{
+        PersonModel.find({},function(err,data){
+            if(err) result(err)
+            result(data)
+        })
+    }
+
 }
 PersonModel.test =  function(req,result){
     const form = new formidable.IncomingForm()
@@ -154,4 +166,5 @@ PersonModel.del =  function(id,result){
        
     })
 }
+
 module.exports = PersonModel;

@@ -9,6 +9,11 @@ exports.join = function(req,res){
        res.send({result:respone});
     }); 
 }
+exports.fake = function(req,res){
+    DangNhap.fake(req.body,function(respone){
+        res.send({result:respone})
+    })
+}
 exports.home = function(req,res){
     const path = require('path');
     var pathfile = path.join(__dirname,'../home.html')
@@ -20,8 +25,8 @@ exports.test = function(req,res){
      }); 
 }
 exports.list = function(req,res){
-    DangNhap.list(function(respone){
-       res.send({result:respone});
+    DangNhap.list(req,function(respone){
+       res.json({result:respone});
     }); 
 }
 exports.detail = function(req,res){
