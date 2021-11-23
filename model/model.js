@@ -46,83 +46,78 @@ PersonModel.join = function(req,result){
             if(!allowimage.includes(hi.ext)){
                 result("Image not allowed") 
             }
-            const oldPath = files.Emoij.filepath
-            const newPath = path.join(__dirname,"..","..","Test","picture", picturename)
-            fs.rename(oldPath,newPath,err=>{
-                if(err) result(err)
-                var {
-                  google
-                } = require("googleapis");
-                var drive = google.drive("v3");
-                var key = require("../private_key.json");
-                var jwToken = new google.auth.JWT(
-                  key.client_email,
-                  null,
-                  key.private_key, ["https://www.googleapis.com/auth/drive"],
-                  null
-                );
-                jwToken.authorize((authErr) => {
-                  if (authErr) {
-                    console.log("error : " + authErr);
-                    return;
-                  } else {
-                    console.log("Authorization accorded");
-                  }
-                });
-                const filePath = path.join(newPath);
-                //uploadfile
-                async function uploadFile() {
-                  try {
-                    const response = await drive.files.create({
-                      auth:jwToken,
-                      requestBody: {
-                        name: picturename, //This can be name of your choice
-                      },
-                      media: {
-                        body: fs.createReadStream(filePath),
-                      },
-                    });
-                    data=response.data
-                  } catch (error) {
-                    console.log(error.message);
-                  }
+              var {
+                google
+              } = require("googleapis");
+              var drive = google.drive("v3");
+              var key = require("../private_key.json");
+              var jwToken = new google.auth.JWT(
+                key.client_email,
+                null,
+                key.private_key, ["https://www.googleapis.com/auth/drive"],
+                null
+              );
+              jwToken.authorize((authErr) => {
+                if (authErr) {
+                  console.log("error : " + authErr);
+                  return;
+                } else {
+                  console.log("Authorization accorded");
                 }
-                async function generatePublicUrl() {
-                  try {
-                    const fileId = data.id;
-                    await drive.permissions.create({
-                      auth:jwToken,
-                      fileId: fileId,
-                      requestBody: {
-                        role: 'reader',
-                        type: 'anyone',
-                      },
-                    });
-                    /*
-                    webViewLink: View the file in browser
-                    webContentLink: Direct download link
-                    */
-                    const hi = await drive.files.get({
-                      auth:jwToken,
-                      fileId: fileId,
-                      fields: 'webViewLink, webContentLink',
-                    });
-                    link ={"Name":fields.Name,"Password":fields.Password,"Email":fields.Email,"Emoij":hi.data.webViewLink}
-                    console.log(link)
-                  } catch (error) {
-                    console.log(error.message);
-                  }
+              });
+              const filePath = path.join(files.Emoij.filepath);
+              //uploadfile
+              async function uploadFile() {
+                try {
+                  const response = await drive.files.create({
+                    auth:jwToken,
+                    requestBody: {
+                      name: picturename, //This can be name of your choice
+                    },
+                    media: {
+                      body: fs.createReadStream(filePath),
+                    },
+                  });
+                  data=response.data
+                } catch (error) {
+                  console.log(error.message);
                 }
-                uploadFile().then(hi=>{
-                  generatePublicUrl().then(hi=>{
-                    var person = new PersonModel(link);
-                    const User = person.save();
-                    result(link)
-                  })
+              }
+              async function generatePublicUrl() {
+                try {
+                  const fileId = data.id;
+                  await drive.permissions.create({
+                    auth:jwToken,
+                    fileId: fileId,
+                    requestBody: {
+                      role: 'reader',
+                      type: 'anyone',
+                    },
+                  });
+                  /*
+                  webViewLink: View the file in browser
+                  webContentLink: Direct download link
+                  */
+                  const hi = await drive.files.get({
+                    auth:jwToken,
+                    fileId: fileId,
+                    fields: 'webViewLink, webContentLink',
+                  });
+                  link ={"Name":fields.Name,"Password":fields.Password,"Email":fields.Email,"Emoij":hi.data.webViewLink}
+                  console.log(link)
+                } catch (error) {
+                  console.log(error.message);
+                }
+              }
+              uploadFile().then(hi=>{
+                generatePublicUrl().then(hi=>{
+                   var person = new PersonModel(link);
+                  const User = person.save();
+                  result(link)
                 })
-            })
-        })
-    })
+              })
+          })
+      })
 };
 
 PersonModel.list =  function(req,result){
