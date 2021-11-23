@@ -11,7 +11,8 @@ const PersonModel = Mongoose.model("people", {
 function CheckUser(req,res,next) {
     username =  req.body.Name || req.query.Name || req.headers["x-access-Name"];
     PersonModel.find({Name:username},function(err,data){
-        if (data){
+        if (data == null){
+            console.log(data)
             res.json("Name existed")
         }
         else{
