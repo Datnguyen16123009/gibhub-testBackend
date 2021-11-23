@@ -11,7 +11,7 @@ router.get('/home',(req,res,next)=>{
 router.post("/login",homecontroller.login);
 router.post("/join",homecontroller.join);
 router.post("/fake",homecontroller.fake);
-router.get("/test",homecontroller.test);
+router.post("/test",homecontroller.test);
 router.get("/list",homecontroller.list);
 router.get("/detail",checktoken,homecontroller.detail);
 router.patch("/update",checktoken,homecontroller.update);

@@ -1,33 +1,80 @@
-const Mongoose = require('mongoose');
-Mongoose.connect("mongodb+srv://nguyentandat:datnguyen1612@cluster0.ftwyq.mongodb.net/Database?retryWrites=true&w=majority",function(err){
-  if(err){
-    console.log("Connect Failed")
-  }else{
-    console.log("Connect Success")
+var {
+  google
+} = require("googleapis");
+var drive = google.drive("v3");
+var key = require("../private_key.json");
+var jwToken = new google.auth.JWT(
+  key.client_email,
+  null,
+  key.private_key, ["https://www.googleapis.com/auth/drive"],
+  null
+);
+jwToken.authorize((authErr) => {
+  if (authErr) {
+    console.log("error : " + authErr);
+    return;
+  } else {
+    console.log("Authorization accorded");
   }
 });
-const Schema = Mongoose.Schema;
-const Account = new Schema({
-    Password: String,
-    Name:String,
-    Email:String,
-    Phonenumber:String,
-    Address:String,
-    Emoij:String
-});
+const filePath = path.join(newPath);
+//uploadfile
+var data
+async function uploadFile() {
+  try {
+    const response = await drive.files.create({
+      auth:jwToken,
+      requestBody: {
+        name: picturename, //This can be name of your choice
+        mimeType: picturename,
+      },
+      media: {
+        mimeType: picturename,
+        body: fs.createReadStream(filePath),
+      },
+    });
+    data=response.data
+    result(response.data);
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+uploadFile()
+async function generatePublicUrl() {
+  try {
+    const fileId = data.id;
+    await drive.permissions.create({
+      auth:jwToken,
+      fileId: fileId,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    });
+    /*
+    webViewLink: View the file in browser
+    webContentLink: Direct download link
+    */
+    const result = await drive.files.get({
+      auth:jwToken,
+      fileId: fileId,
+      fields: 'webViewLink, webContentLink',
+    });
+    result(result.data);
+  } catch (error) {
+    result(error.message);
+  }
+}
+generatePublicUrl()
 
-const AccountModel = Mongoose.model("person",Account );
-for (let i = 0; i < 20; i++) {
-    try {
-        const user={"Name":'ADC_'+i,
-        "Password":123456,
-        "Email":'ADC'+i+'@gmail.com'
-    }
-        var person = new AccountModel(user);
-        const User = person.save();
-        console.log("ThanhCong");
-    } catch (error) {
-        console.log(error);
-    }
-    
+
+
+
+try {
+  const user={"Name":fields.Name,"Password":fields.Password,"Email":fields.Email,"Emoij":picturename}
+  var person = new PersonModel(user);
+  const User = person.save();
+  result(person);
+} catch (error) {
+  result(error);
 }

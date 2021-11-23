@@ -9,6 +9,8 @@
     "express": "^4.17.1",
     "file-type": "^16.5.3",
     "formidable": "^2.0.1",
+    "google-drive": "0.0.8",
+    "googleapis": "^91.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.1.4",
     "mongoose": "^6.0.12",
