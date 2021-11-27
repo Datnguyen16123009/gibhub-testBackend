@@ -78,3 +78,13 @@ try {
 } catch (error) {
   result(error);
 }
+
+
+jwToken.authorize((authErr) => {
+  if (authErr) {
+    console.log("error : " + authErr);
+    return;
+  } else {
+    console.log("Authorization accorded");
+  }
+});

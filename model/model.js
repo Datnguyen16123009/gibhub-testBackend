@@ -2,8 +2,6 @@ const Mongoose = require("mongoose");
 const _CONF = require('../common/config');
 var jwt = require('jsonwebtoken');
 const { formidable } = require("formidable");
-const { response } = require("../router/home.router");
-const { file } = require("googleapis/build/src/apis/file");
 const PersonModel = Mongoose.model("person", {
     Password: String,
     Name:String,
@@ -33,6 +31,7 @@ PersonModel.login = function(name,pass,result){
 };
 PersonModel.join = function(req,result){
     var data,link
+    const parse = require('nodejs-base64-encode');
     const form = new formidable.IncomingForm()
     const detect = require("detect-file-type")
     const {v1:uuidv1} = require("uuid")
@@ -41,14 +40,13 @@ PersonModel.join = function(req,result){
     form.parse(req,(err,fields,files)=>{
         if(err){return("ERR in file")}
         detect.fromFile(files.Emoij.filepath,(err,hi)=>{
-            const picturename = uuidv1()+"."+hi.ext
             const allowimage = ["png","jeg","jpg"]
             if(!allowimage.includes(hi.ext)){
                 result("Image not allowed") 
             }
-              var {
-                google
-              } = require("googleapis");
+            var {
+              google
+            } = require("googleapis");
               var drive = google.drive("v3");
               var key = require("../private_key.json");
               var jwToken = new google.auth.JWT(
@@ -57,14 +55,6 @@ PersonModel.join = function(req,result){
                 key.private_key, ["https://www.googleapis.com/auth/drive"],
                 null
               );
-              jwToken.authorize((authErr) => {
-                if (authErr) {
-                  console.log("error : " + authErr);
-                  return;
-                } else {
-                  console.log("Authorization accorded");
-                }
-              });
               const filePath = path.join(files.Emoij.filepath);
               //uploadfile
               async function uploadFile() {
@@ -103,15 +93,15 @@ PersonModel.join = function(req,result){
                     fileId: fileId,
                     fields: 'webViewLink, webContentLink',
                   });
-                  link ={"Name":fields.Name,"Password":fields.Password,"Email":fields.Email,"Emoij":hi.data.webViewLink}
-                  console.log(link)
+                  a=parse.encode(hi.data.webViewLink,'base64')
+                  link ={"Name":fields.Name,"Password":fields.Password,"Email":fields.Email,"Emoij":a}
                 } catch (error) {
                   console.log(error.message);
                 }
               }
               uploadFile().then(hi=>{
                 generatePublicUrl().then(hi=>{
-                   var person = new PersonModel(link);
+                  var person = new PersonModel(link);
                   const User = person.save();
                   result(link)
                 })
