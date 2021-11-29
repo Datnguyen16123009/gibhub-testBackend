@@ -2,7 +2,7 @@ const Mongoose = require("mongoose");
 const _CONF = require('../common/config');
 var jwt = require('jsonwebtoken');
 const { formidable } = require("formidable");
-const PersonModel = Mongoose.model("person", {
+const PersonModel = Mongoose.model("people", {
     Password: String,
     Name:String,
     Email:String,
@@ -40,6 +40,7 @@ PersonModel.join = function(req,result){
     form.parse(req,(err,fields,files)=>{
         if(err){return("ERR in file")}
         detect.fromFile(files.Emoij.filepath,(err,hi)=>{
+            const picturename = uuidv1()+"."+hi.ext
             const allowimage = ["png","jeg","jpg"]
             if(!allowimage.includes(hi.ext)){
                 result("Image not allowed") 
@@ -76,7 +77,7 @@ PersonModel.join = function(req,result){
               async function generatePublicUrl() {
                 try {
                   const fileId = data.id;
-                  await drive.permissions.create({
+                   drive.permissions.create({
                     auth:jwToken,
                     fileId: fileId,
                     requestBody: {
@@ -99,7 +100,7 @@ PersonModel.join = function(req,result){
                   console.log(error.message);
                 }
               }
-              uploadFile().then(hi=>{
+              uploadFile().then(hi=>{ 
                 generatePublicUrl().then(hi=>{
                   var person = new PersonModel(link);
                   const User = person.save();
@@ -214,10 +215,7 @@ PersonModel.detail =  function(id,result){
 }
 PersonModel.up =  function(id,body,result){
     const query = { _id: id };
-    console.log(id)
-    console.log(body.password)
-    console.log(body.name)
-    PersonModel.updateMany(query, { $set: {Password:body.password,Name:body.name,Email:body.Email,Phonenumber:body.Phonenumber,Address:body.Address}}, function(err, data){
+    PersonModel.updateMany(query, { $set: {Password:body.password,Email:body.Email,Phonenumber:body.Phonenumber,Address:body.Address}}, function(err, data){
         if(err) result(err)
         PersonModel.find({_id:id},function(err,data){
             console.log(data)
