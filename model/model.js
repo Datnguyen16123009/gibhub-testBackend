@@ -2,7 +2,7 @@ const Mongoose = require("mongoose");
 const _CONF = require('../common/config');
 var jwt = require('jsonwebtoken');
 const { formidable } = require("formidable");
-const PersonModel = Mongoose.model("people", {
+const PersonModel = Mongoose.model("person", {
     Password: String,
     Name:String,
     Email:String,
