@@ -12,7 +12,7 @@ router.get('/home',(req,res,next)=>{
 router.post("/login",homecontroller.login);
 router.post("/join",CheckUser,homecontroller.join);
 router.post("/fake",homecontroller.fake);
-router.post("/test",homecontroller.test);
+router.post("/uploadImage",homecontroller.test);
 router.get("/list",checktoken,homecontroller.list);
 router.get("/detail",checktoken,homecontroller.detail);
 router.patch("/update",CheckUser,checktoken,homecontroller.update);

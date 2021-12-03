@@ -8,24 +8,13 @@ async function getusername(req,res){
     });
 }
 async function CheckUser(req,res,next) {
-    username =  req.body.Name || req.query.Name || req.headers["x-access-Name"]||null;
-    if(username==null){
-        getusername(req,res).then(hi=>{
-            PersonModel.find({Name:username},function(err,data){
-                if (data[0] != null){
-                    return  res.status(401).json({"error": true, "message": 'User exits' });
-                }
-                next();
-                })
-        })
-    }else{
-        PersonModel.find({Name:username},function(err,data){
-            if (data[0] != null){
-                return  res.status(401).json({"error": true, "message": 'User exits' });
-            }
-            next();
-            })
-    }
-    //next();
+    username =  req.body.Name || req.query.Name || req.headers["x-access-Name"];
+    console.log(username)  
+    PersonModel.find({Name:username},function(err,data){
+        if (data[0] != null){
+            return  res.status(401).json({"error": true, "message": 'User exits' });
+        }
+        next();
+    })
 }
 module.exports = CheckUser
